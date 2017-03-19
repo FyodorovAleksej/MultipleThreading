@@ -47,6 +47,7 @@ public class WorkQueue
                         }
                         catch (InterruptedException ignored)
                         {
+                            return;
                         }
                     }
 

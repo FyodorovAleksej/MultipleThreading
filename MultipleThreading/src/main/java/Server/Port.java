@@ -83,8 +83,8 @@ public class Port extends Thread{
                 synchronized (shipQueue) {
                     while (shipQueue.isEmpty()) {
                         try {
-                            wait();
-                        } catch (Exception ignored) {
+                            shipQueue.wait();
+                        } catch (InterruptedException ignored) {
                             return;
                         }
                     }
