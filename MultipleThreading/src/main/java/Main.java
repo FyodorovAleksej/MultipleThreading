@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         final WorkQueue queue = new WorkQueue(1,Display.getDefault());
 
-        final Display display = new Display();
+        final Display display = Display.getDefault();
         final Shell shell = new Shell(display);
         shell.setLayout(new FillLayout());
         int style = SWT.BORDER;

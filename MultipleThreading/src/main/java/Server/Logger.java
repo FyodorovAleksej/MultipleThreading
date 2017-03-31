@@ -1,7 +1,9 @@
 package Server;
 
+import Items.Storage;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.List;
 
 import java.util.ArrayList;
 
@@ -35,7 +37,8 @@ public class Logger extends Thread {
             try {
                 sleep(5000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
+                return;
             }
         }
     }

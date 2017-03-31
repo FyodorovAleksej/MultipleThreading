@@ -1,4 +1,6 @@
+import Client.QueuePriority;
 import Client.Ship;
+import Items.ControlStorage;
 import Items.Storage;
 import Server.Port;
 import junit.framework.TestCase;
@@ -48,13 +50,26 @@ public class Test extends TestCase {
         assertTrue(storage.getCountOfProduct("Silk").equals(10));
         System.out.println(storage);
     }
+
+    public void testStorage(){
+        Storage storage1 = new Storage();
+        storage1.addCount("Silk",10);
+        storage1.getFromStorage(storage);
+        assertTrue(storage.getCountOfProduct("Silk") == 10);
+    }
+    public void testGetStorage(){
+        Storage storage1 = new Storage();
+        storage1.addCount("Nook",10);
+        assertTrue(!storage1.getFromStorage(storage));
+    }
+
     public void testStorage1(){
         Ship ship = new Ship();
         Ship ship1 = new Ship();
         Ship ship2 = new Ship();
         Ship ship3 = new Ship();
         Ship ship4 = new Ship();
-        Ship ship5 = new Ship(5);
+        Ship ship5 = new Ship(QueuePriority.ROCKET);
         Ship ship6 = new Ship();
         Ship ship7 = new Ship();
         Ship ship8 = new Ship();
@@ -86,7 +101,57 @@ public class Test extends TestCase {
 
 
     public void testStorage2(){
+    }
 
+    public void testControlStorage1(){
+        ControlStorage controlStorage = new ControlStorage();
+
+        assertTrue(!controlStorage.addControlCount("Silk",20));
+        assertTrue(!controlStorage.addControlCount("Wood",0));
+        assertTrue(!controlStorage.addControlCount("Soda",30));
+        assertTrue(controlStorage.addControlCount("Soda",5));
+
+        assertTrue(!controlStorage.addCount("Wood",40));
+
+        assertTrue(controlStorage.controlGetStorage(storage));
+
+        assertTrue(controlStorage.getCountOfProduct("Wood").equals(0));
+        assertTrue(storage.getCountOfProduct("Soda").equals(5));
+    }
+    public void testControlStorage2(){
+        ControlStorage controlStorage = new ControlStorage();
+
+        assertTrue(!controlStorage.addControlCount("Silk",20));
+        assertTrue(!controlStorage.addControlCount("Wood",0));
+        assertTrue(!controlStorage.addControlCount("Soda",60));
+
+        assertTrue(!controlStorage.addCount("Wood",40));
+
+        assertEquals(controlStorage.countOfOperations(storage),0);
+
+        assertTrue(!controlStorage.controlGetStorage(storage));
+    }
+    public void testControlStorage3(){
+        ControlStorage controlStorage = new ControlStorage();
+
+        assertTrue(!controlStorage.addControlCount("Silk",20));
+        assertTrue(!controlStorage.addControlCount("Soda",60));
+       // assertTrue(!controlStorage.addControlCount("Wood",0));
+
+        assertTrue(!controlStorage.addCount("Soda",20));
+        assertTrue(!controlStorage.addCount("Wood",40));
+
+        Storage controlStorage2 = new Storage();
+
+        assertTrue(!controlStorage2.addCount("Wood",60));
+        assertTrue(!controlStorage2.addCount("Silk",60));
+        assertTrue(!controlStorage2.addCount("Soda",60));
+
+        System.out.println(controlStorage2 + "\n||\n\\/");
+
+        controlStorage.controlGetStorage(controlStorage2);
+
+        System.out.println(controlStorage2);
     }
 
 }

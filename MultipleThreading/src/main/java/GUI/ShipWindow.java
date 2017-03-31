@@ -1,22 +1,19 @@
 package GUI;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Button;
+import Client.QueuePriority;
+import Client.Ship;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.SWT;
+
+import java.util.Set;
 
 public class ShipWindow {
 
     protected Shell shell;
-    private Table productTable;
+    private List productList;
+    private List controlList;
     private Text shipNameField;
     private Label productLabel;
     private Composite timerComposite;
@@ -36,17 +33,13 @@ public class ShipWindow {
     private Composite buttonComposite;
     private Composite southComposite;
 
+    private Ship ship = new Ship();
     /**
      * Launch the application.
-     * @param args
      */
-    public static void main(String[] args) {
-        try {
-            ShipWindow window = new ShipWindow();
-            window.open();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Ship show() {
+        this.open();
+        return ship;
     }
 
     /**
@@ -68,7 +61,7 @@ public class ShipWindow {
      * Create contents of the window.
      */
     protected void createContents() {
-        shell = new Shell();
+        shell = new Shell(Display.getCurrent());
         shell.setSize(450, 300);
         shell.setText("SWT Application");
         shell.setLayout(new FillLayout(SWT.VERTICAL));
@@ -83,7 +76,7 @@ public class ShipWindow {
         productLabel.setText("product");
 
         shipNameField = new Text(leftFullComposite, SWT.BORDER);
-        shipNameField.setText("[ship name]");
+        shipNameField.setText(ship.getName());
 
         propertiesComposite = new Composite(leftFullComposite, SWT.NONE);
         propertiesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -94,57 +87,123 @@ public class ShipWindow {
         timeSpinner = new Spinner(timerComposite, SWT.BORDER);
 
         priorityCombo = new Combo(timerComposite, SWT.NONE);
+        setPriorityList(priorityCombo);
+        priorityCombo.select(0);
 
         checkComposite = new Composite(propertiesComposite, SWT.NONE);
         checkComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
         timeCheckButton = new Button(checkComposite, SWT.CHECK);
-        timeCheckButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            }
-        });
         timeCheckButton.setText("Use Time");
 
         priorityCheckButton = new Button(checkComposite, SWT.CHECK);
         priorityCheckButton.setText("Use Priority");
 
         fineCheckButton = new Button(checkComposite, SWT.CHECK);
-        fineCheckButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            }
-        });
         fineCheckButton.setText("Fine");
 
         rightComposite = new Composite(northComposite, SWT.NONE);
         rightComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
-        productAddComposite = new Composite(rightComposite, SWT.NONE);
-        productAddComposite.setLayout(new FillLayout(SWT.VERTICAL));
+        productComboBox = new Combo(rightComposite, SWT.NONE);
+        setProductList(productComboBox);
+        productComboBox.select(0);
 
-        productComboBox = new Combo(productAddComposite, SWT.NONE);
+        productSpinner = new Spinner(rightComposite, SWT.BORDER);
 
-        productSpinner = new Spinner(productAddComposite, SWT.BORDER);
+        Button addButton = new Button(rightComposite, SWT.NONE);
+        addButton.setText("Add product");
+        addButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                addAction();
+            }
+        });
 
-        buttonComposite = new Composite(rightComposite, SWT.NONE);
-        buttonComposite.setLayout(new FillLayout(SWT.VERTICAL));
+        Button addControlButton = new Button(rightComposite, SWT.NONE);
+        addControlButton.setText("Add to control product");
+        addControlButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                addControlAction();
+            }
+        });
 
-        Button btnNewButton = new Button(buttonComposite, SWT.NONE);
-        btnNewButton.setText("New Button");
+        Button closeButton = new Button(rightComposite, SWT.NONE);
+        closeButton.setText("Close");
+        closeButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                closeAction();
+            }
+        });
 
-        Button btnNewButton_1 = new Button(buttonComposite, SWT.NONE);
-        btnNewButton_1.setText("New Button");
-
-        Button btnNewButton_2 = new Button(buttonComposite, SWT.NONE);
-        btnNewButton_2.setText("New Button");
+        Button applyButton = new Button(rightComposite, SWT.NONE);
+        applyButton.setText("Apply");
+        applyButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                applyAction();
+            }
+        });
 
         southComposite = new Composite(shell, SWT.NONE);
         southComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-        productTable = new Table(southComposite, SWT.BORDER | SWT.FULL_SELECTION);
-        productTable.setHeaderVisible(true);
-        productTable.setLinesVisible(true);
+        productList = new List(southComposite,SWT.V_SCROLL | SWT.BORDER);
+        controlList = new List(southComposite,SWT.V_SCROLL | SWT.BORDER);
+    }
 
+    public void setPriorityList(Combo comboBox) {
+        for (QueuePriority i : Client.QueuePriority.values()){
+            comboBox.add(i.toString());
+        }
+        comboBox.select(0);
+    }
+
+    public void setProductList(Combo comboBox) {
+        comboBox.add("Silk");
+        comboBox.add("Wood");
+        comboBox.add("Milk");
+    }
+
+    public void addAction() {
+        ship.addCount(productComboBox.getItem(productComboBox.getSelectionIndex()), productSpinner.getSelection());
+        refreshProductList(productList);
+    }
+
+    public void addControlAction() {
+        ship.addControlCount(productComboBox.getItem(productComboBox.getSelectionIndex()), productSpinner.getSelection());
+        refreshControlList(controlList);
+    }
+
+    public void closeAction() {
+        ship = null;
+        shell.dispose();
+    }
+
+    public void applyAction() {
+        ship.setPriority(QueuePriority.valueOf(priorityCombo.getItem(priorityCombo.getSelectionIndex())));
+        ship.setName(shipNameField.getText());
+        ship.setUsePriority(this.priorityCheckButton.getSelection());
+        ship.setFine(this.fineCheckButton.getSelection());
+        ship.setUseTimer(this.timeCheckButton.getSelection());
+        ship.setTime(this.timeSpinner.getSelection());
+        shell.dispose();
+    }
+
+    public void refreshProductList(List list) {
+        list.removeAll();
+        Set<String> keys = ship.getKeySet();
+        for (String i : keys) {
+            list.add(i + " - " + ship.getCountOfProduct(i));
+        }
+    }
+    public void refreshControlList(List list){
+        list.removeAll();
+        Set<String> keys = ship.getControlMap().keySet();
+        for (String i : keys) {
+            list.add(i + " - " + ship.getCountOfControl(i));
+        }
     }
 }

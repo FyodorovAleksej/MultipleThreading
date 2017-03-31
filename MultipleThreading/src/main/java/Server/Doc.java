@@ -11,22 +11,20 @@ import static java.lang.Thread.sleep;
 /**
  * Created by Alexey on 17.03.2017.
  */
-public class Doc implements Runnable{
+public class Doc extends Thread{
     //-----------------------Objects-------------------------------------------
     private static int count = 0;
     private final StyledText text;
-    private Storage storage;
+    final private Storage storage;
     private int number;
     private Ship currentShip = null;
 
     //-----------------------Constructors--------------------------------------
-    public Doc(StyledText t){
+    public Doc(StyledText t,Storage storage){
         this.text = t;
         number = count;
         count++;
-        storage = new Storage();
-        storage.put("Wood",40);
-        storage.put("Steel",60);
+        this.storage = storage;
     }
 
     //-----------------------Get/Set-------------------------------------------
@@ -51,12 +49,26 @@ public class Doc implements Runnable{
             text.append("doc" + number + " run with " + getCurrentShip().toString() + "\n");
         }
         try {
-            sleep(1240);
+            boolean flag;
+            synchronized (storage){
+                flag = currentShip.controlGetStorage(this.storage);
+            }
+            if (flag){
+                sleep(currentShip.countOfOperations(this.storage)*100);
+                synchronized (text) {
+                    text.append("doc" + number + " finish run with " + getCurrentShip().toString() + "\n");
+                }
+            }
+            else{
+                synchronized (text) {
+                    text.append("doc" + number + " don't service " + getCurrentShip().toString() + "\n");
+                }
+            }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-        synchronized (text) {
-            text.append("doc" + number + " finish run" + getCurrentShip().toString() + "\n");
+            setCurrentShip(null);
+            return;
         }
         setCurrentShip(null);
     }

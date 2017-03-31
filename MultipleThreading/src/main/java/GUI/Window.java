@@ -12,7 +12,7 @@ import org.eclipse.swt.custom.StyledText;
 public class Window {
     private Port port;
     protected Shell shell;
-    private Table portStorageTable;
+    private List portStorageTable;
 
 
     Display display;
@@ -39,13 +39,8 @@ public class Window {
     public void open() {
         display = Display.getDefault();
         createContents();
-        /*display.syncExec(new Runnable() {
-            @Override
-            public void run() {
-                doc1Text.append("sync input");
-            }
-        });*/
         shell.open();
+        shell.layout();
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
@@ -54,8 +49,16 @@ public class Window {
     }
 
     protected void createContents() {
-        shell = new Shell();
+        display = Display.getDefault();
+        shell = new Shell(display);
         shell.setLayout(new FillLayout(SWT.VERTICAL));
+        shell.addListener(SWT.CLOSE, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                closeAction();
+            }
+        });
+        shell.open();
 
         Composite northComposite = new Composite(shell, SWT.NONE);
         northComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -74,9 +77,7 @@ public class Window {
         portStorageLabel = new Label(tableComposite, SWT.NONE);
         portStorageLabel.setText("port storage");
 
-        portStorageTable = new Table(tableComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
-        portStorageTable.setHeaderVisible(true);
-        portStorageTable.setLinesVisible(true);
+        portStorageTable = new List(tableComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
 
         Composite shipListComposite = new Composite(northComposite, SWT.NONE);
         shipListComposite.setLayout(new FillLayout(SWT.VERTICAL));
@@ -163,17 +164,21 @@ public class Window {
         texts[0] = doc1Text;
         texts[1] = doc2Text;
         texts[2] = doc3Text;
-        port = new Port(3, texts, display, logText);
+        port = new Port(3, texts, display, logText, portStorageTable);
 
         //portStorageTable.
     }
 
     public void addAction(){
-        Ship ship = new Ship();
-        port.addInList(ship);
-        shipList.add(ship.toString());
-        System.out.println("create");
+        ShipWindow shipWindow = new ShipWindow();
+        Ship createdShip = shipWindow.show();
+        if (createdShip != null) {
+            port.addInList(createdShip);
+            shipList.add(createdShip.toString());
+            System.out.println("create");
+        }
     }
+
     public void deleteAction(){
         int i = shipList.getSelectionIndex();
         if (i >= 0) {
@@ -188,6 +193,7 @@ public class Window {
         }
         System.out.println("delete");
     }
+
     public void addInQueueAction(){
         int index = shipList.getSelectionIndex();
         if (index >= 0) {
@@ -197,11 +203,14 @@ public class Window {
             System.out.println("add");
         }
     }
+
     public void closeAction(){
         shell.close();
+        shell.dispose();
         port.interrupt();
         System.out.println("close");
     }
+
     public void runAction(){
         port.start();
     }
