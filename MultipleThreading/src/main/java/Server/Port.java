@@ -7,11 +7,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.List;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import static java.lang.Thread.sleep;
-import static java.lang.Thread.yield;
 
 /**
  * Created by Alexey on 17.03.2017.
@@ -22,11 +20,10 @@ public class Port extends Thread {
     //-----------------------Objects-------------------------------------------
 
     private ArrayList<Doc> docList;
-    private Logger logger;
+    private PortLogger portLogger;
     private final Storage storage;
     private Display display;
     private StyledText logText;
-   // private int docCount;
     private final List portStorageTable;
     private LinkedList<Ship> shipList = new LinkedList<>();
     private WorkQueue workQueue;
@@ -48,7 +45,7 @@ public class Port extends Thread {
         this.logText = logText;
         this.display = display;
         this.portStorageTable = portStorageTable;
-        workQueue = new WorkQueue(doc_count,display);
+        workQueue = new WorkQueue(doc_count);
         docList = new ArrayList<>(doc_count);
         for (int i = 0; i < doc_count; i++){
             Doc doc = new Doc(text[i],this.storage, this.display);
@@ -126,8 +123,8 @@ public class Port extends Thread {
      */
     @Override
     public void run() {
-        logger = new Logger(docList, logText, display);
-        logger.start();
+        portLogger = new PortLogger(docList, logText, display);
+        portLogger.start();
             while (true) {
                 display.syncExec(new Runnable() {
                     @Override
@@ -143,7 +140,7 @@ public class Port extends Thread {
                         try {
                             shipQueue.wait();
                         } catch (InterruptedException ignored) {
-                            logger.interrupt();
+                            portLogger.interrupt();
                             for (Doc i : docList){
                                 i.interrupt();
                             }

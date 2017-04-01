@@ -1,7 +1,6 @@
 package Server;
 
-import org.eclipse.swt.widgets.Display;
-
+import org.apache.logging.log4j.*;
 import java.util.LinkedList;
 
 /**
@@ -10,13 +9,51 @@ import java.util.LinkedList;
  */
 public class WorkQueue
 {
-    private Display display;
+
+            private class PoolWorker extends Thread {
+
+                //-------------------Objects-------------------------------------------
+
+                private final Logger log = LogManager.getLogger(PoolWorker.class);
+
+                //-------------------Run-----------------------------------------------
+
+                public void run() {
+                    Runnable runnable;
+                    while (true) {
+                        synchronized (queue) {
+                            while (queue.isEmpty()) {
+                                try {
+                                    queue.wait();
+                                } catch (InterruptedException ignored) {
+                                    System.out.println("Interrupt thread queue");
+                                    return;
+                                }
+                            }
+                            runnable = (Runnable) queue.removeFirst();
+                        }
+
+                        try {
+                            log.info("Start Pool Worker");
+                            runnable.run();
+                            log.info("End Pool Worker");
+                        } catch (RuntimeException e) {
+                            log.error(e.getMessage());
+                            return;
+                        }
+                    }
+                }
+            }
+
+    //-----------------------Objects-------------------------------------------
+
     private final int nThreads;
     private final PoolWorker[] threads;
     private final LinkedList queue;
 
-    public WorkQueue(int nThreads, Display display) {
-        this.display = display;
+    //-----------------------Constructors--------------------------------------
+
+    public WorkQueue(int nThreads) {
         this.nThreads = nThreads;
         queue = new LinkedList();
         threads = new PoolWorker[nThreads];
@@ -27,6 +64,8 @@ public class WorkQueue
         }
     }
 
+    //-----------------------Methods-------------------------------------------
+
     public void execute(Runnable r) {
         synchronized(queue) {
             queue.addLast(r);
@@ -34,35 +73,4 @@ public class WorkQueue
         }
     }
 
-    private class PoolWorker extends Thread {
-        public void run() {
-            Runnable r;
-            while (true) {
-                synchronized(queue) {
-                    while (queue.isEmpty()) {
-                        try
-                        {
-                            queue.wait();
-                        }
-                        catch (InterruptedException ignored)
-                        {
-                            System.out.println("Interrupt thread queue");
-                            return;
-                        }
-                    }
-                    r = (Runnable) queue.removeFirst();
-                }
-
-                try {
-                    System.out.println("work...");
-                    r.run();
-                    System.out.println("_______\n");
-                }
-                catch (RuntimeException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        }
-    }
 }

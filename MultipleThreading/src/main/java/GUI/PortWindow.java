@@ -22,34 +22,22 @@ public class PortWindow {
     private List portStorageTable;
 
 
-    Display display;
-    Label shipQueueLabel;
-    List shipQueueList;
-    Label portStorageLabel;
-    Label shipListLabel;
-    List shipList;
-    StyledText logText;
-    StyledText doc1Text;
-    StyledText doc2Text;
-    StyledText doc3Text;
+    private Display display;
+    private Label shipQueueLabel;
+    private List shipQueueList;
+    private Label portStorageLabel;
+    private Label shipListLabel;
+    private List shipList;
+    private StyledText logText;
+    private StyledText doc1Text;
+    private StyledText doc2Text;
+    private StyledText doc3Text;
 
+    //-----------------------Constructors--------------------------------------
 
     /**
-     * method for
-     * @param args
+     * Create window for display work of the Port
      */
-
-    public void open() {
-        display = Display.getDefault();
-        shell.open();
-        shell.layout();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-    }
-
     public PortWindow() {
         display = Display.getDefault();
         shell = new Shell(display);
@@ -171,6 +159,27 @@ public class PortWindow {
         //portStorageTable.
     }
 
+    //-----------------------Methods-------------------------------------------
+
+    /**
+     * method for open this window
+     */
+    public void open() {
+        display = Display.getDefault();
+        shell.open();
+        shell.layout();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+    }
+
+    //-----------------------Actions-------------------------------------------
+
+    /**
+     * action, that was performed, than button "Add" was pressed
+     */
     public void addAction(){
         ShipWindow shipWindow = new ShipWindow();
         Ship createdShip = shipWindow.open();
@@ -181,6 +190,9 @@ public class PortWindow {
         }
     }
 
+    /**
+     * action, that was performed, than button "Delete" was pressed
+     */
     public void deleteAction(){
         int i = shipList.getSelectionIndex();
         if (i >= 0) {
@@ -196,6 +208,9 @@ public class PortWindow {
         System.out.println("delete");
     }
 
+    /**
+     * action, that was performed, than button "Add in Queue" was pressed
+     */
     public void addInQueueAction(){
         int index = shipList.getSelectionIndex();
         if (index >= 0) {
@@ -206,6 +221,9 @@ public class PortWindow {
         }
     }
 
+    /**
+     * action, that was performed, than button "Close" was pressed
+     */
     public void closeAction(){
         shell.close();
         shell.dispose();
@@ -213,8 +231,10 @@ public class PortWindow {
         System.out.println("close");
     }
 
+    /**
+     * action, that was performed, than button "Run" was pressed
+     */
     public void runAction(){
         port.start();
     }
-
 }

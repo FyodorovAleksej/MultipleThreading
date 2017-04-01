@@ -2,6 +2,8 @@ package Client;
 
 import Items.ControlStorage;
 import Items.Storage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class of users Object - ship, that extends from class Storage
@@ -11,7 +13,7 @@ import Items.Storage;
 public class Ship extends ControlStorage {
 
     //-----------------------Objects-------------------------------------------
-
+    private static final Logger log = LogManager.getLogger(Ship.class);
     private String name;
     private static int count = 0;
     private QueuePriority priority = QueuePriority.USUAL;
@@ -29,9 +31,10 @@ public class Ship extends ControlStorage {
      *  - add in storage default values
      */
     public Ship(){
-        this.name = "ship" + count;
+        this.name = "ship " + count;
         count++;
         this.defaultInitialize();
+        log.info("Create Ship - " + this.name);
     }
 
     /**
@@ -41,10 +44,11 @@ public class Ship extends ControlStorage {
      *  @param priority - the priority of ship
      */
     public Ship(QueuePriority priority){
-        this.name = "ship" + count;
+        this.name = "ship " + count;
         count++;
         this.defaultInitialize();
         this.priority = priority;
+        log.info("Create Ship with priority - " + this.name);
     }
 
     /**
@@ -57,6 +61,7 @@ public class Ship extends ControlStorage {
         this.name = name;
         this.defaultInitialize();
         this.priority = QueuePriority.USUAL;
+        log.info("Create Ship with name - " + this.name);
     }
 
     /**
@@ -69,6 +74,7 @@ public class Ship extends ControlStorage {
         this.name = name;
         this.defaultInitialize();
         this.priority = priority;
+        log.info("Create Ship with name and priority - " + this.name);
     }
 
     //-----------------------Get/Set-------------------------------------------
@@ -145,6 +151,7 @@ public class Ship extends ControlStorage {
      */
     public void setUseTimer(boolean useTimer) {
         isUseTimer = useTimer;
+        log.info("Changed Using Timer");
     }
 
     /**
@@ -162,6 +169,7 @@ public class Ship extends ControlStorage {
      */
     public void setFine(boolean fine) {
         isFine = fine;
+        log.info("Set fine for Ship - " + this.name);
     }
 
     /**
@@ -179,6 +187,7 @@ public class Ship extends ControlStorage {
      */
     public void setUsePriority(boolean usePriority) {
         isUsePriority = usePriority;
+        log.info("Changed Using priority for Ship - " + this.name);
     }
 
     //-----------------------Methods-------------------------------------------
