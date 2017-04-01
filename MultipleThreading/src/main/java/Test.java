@@ -46,21 +46,9 @@ public class Test extends TestCase {
         assertTrue(storage.getCountOfProduct("Silk").equals(70));
     }
     public void testProd4(){
-        assertTrue(storage.subCount("Silk",10));
+        assertTrue(storage.addCount("Silk",-10));
         assertTrue(storage.getCountOfProduct("Silk").equals(10));
         System.out.println(storage);
-    }
-
-    public void testStorage(){
-        Storage storage1 = new Storage();
-        storage1.addCount("Silk",10);
-        storage1.getFromStorage(storage);
-        assertTrue(storage.getCountOfProduct("Silk") == 10);
-    }
-    public void testGetStorage(){
-        Storage storage1 = new Storage();
-        storage1.addCount("Nook",10);
-        assertTrue(!storage1.getFromStorage(storage));
     }
 
     public void testStorage1(){
@@ -149,6 +137,7 @@ public class Test extends TestCase {
 
         System.out.println(controlStorage2 + "\n||\n\\/");
 
+        System.out.println(controlStorage.countOfOperations(controlStorage2));
         controlStorage.controlGetStorage(controlStorage2);
 
         System.out.println(controlStorage2);

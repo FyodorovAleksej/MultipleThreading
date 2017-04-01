@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 /**
  * Created by Alexey on 15.03.2017.
+ * User's Semaphore
  */
 public class WorkQueue
 {
@@ -14,8 +15,7 @@ public class WorkQueue
     private final PoolWorker[] threads;
     private final LinkedList queue;
 
-    public WorkQueue(int nThreads, Display display)
-    {
+    public WorkQueue(int nThreads, Display display) {
         this.display = display;
         this.nThreads = nThreads;
         queue = new LinkedList();
@@ -37,7 +37,6 @@ public class WorkQueue
     private class PoolWorker extends Thread {
         public void run() {
             Runnable r;
-
             while (true) {
                 synchronized(queue) {
                     while (queue.isEmpty()) {
@@ -47,22 +46,21 @@ public class WorkQueue
                         }
                         catch (InterruptedException ignored)
                         {
+                            System.out.println("Interrupt thread queue");
                             return;
                         }
                     }
-
                     r = (Runnable) queue.removeFirst();
                 }
 
-                // If we don't catch RuntimeException,
-                // the pool could leak threads
                 try {
                     System.out.println("work...");
-                    display.asyncExec(r);
+                    r.run();
                     System.out.println("_______\n");
                 }
                 catch (RuntimeException e) {
-                    // You might want to log something here
+                    e.printStackTrace();
+                    return;
                 }
             }
         }

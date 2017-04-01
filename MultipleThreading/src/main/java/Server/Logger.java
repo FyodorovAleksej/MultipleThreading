@@ -9,8 +9,12 @@ import java.util.ArrayList;
 
 /**
  * Created by Alexey on 19.03.2017.
+ * Class for Logging work of Port and Docs in file and GUI
  */
 public class Logger extends Thread {
+
+    //-----------------------Objects-------------------------------------------
+
     private final StyledText logtext;
     private Display display;
     private ArrayList<Doc> docs;
@@ -19,11 +23,15 @@ public class Logger extends Thread {
         this.logtext = logtext;
         this.docs = docs;
     }
+
+    //-----------------------Methods-------------------------------------------
+
+    /**
+     * work of the Logger
+     */
     public void run(){
-        //byte flag = 0;
         String buffer;
         while (true) {
-
             for (Doc i : docs) {
                 buffer = i.toString();
                 final String finalBuffer = buffer;
@@ -37,7 +45,6 @@ public class Logger extends Thread {
             try {
                 sleep(5000);
             } catch (InterruptedException e) {
-               // e.printStackTrace();
                 return;
             }
         }

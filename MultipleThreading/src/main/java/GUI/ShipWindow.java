@@ -9,9 +9,16 @@ import org.eclipse.swt.SWT;
 
 import java.util.Set;
 
+/**
+ * Class of PortWindow for creating new Ship
+ * Created by Alexey on 17.03.2017.
+ */
+
 public class ShipWindow {
 
-    protected Shell shell;
+    //-----------------------Objects-------------------------------------------
+
+    private Shell shell;
     private List productList;
     private List controlList;
     private Text shipNameField;
@@ -34,33 +41,14 @@ public class ShipWindow {
     private Composite southComposite;
 
     private Ship ship = new Ship();
-    /**
-     * Launch the application.
-     */
-    public Ship show() {
-        this.open();
-        return ship;
-    }
+
+    //-----------------------Constructors--------------------------------------
 
     /**
-     * Open the window.
+     * Create window and link element with logic
      */
-    public void open() {
-        Display display = Display.getDefault();
-        createContents();
-        shell.open();
-        shell.layout();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-    }
 
-    /**
-     * Create contents of the window.
-     */
-    protected void createContents() {
+    public ShipWindow() {
         shell = new Shell(Display.getCurrent());
         shell.setSize(450, 300);
         shell.setText("SWT Application");
@@ -154,35 +142,112 @@ public class ShipWindow {
         controlList = new List(southComposite,SWT.V_SCROLL | SWT.BORDER);
     }
 
-    public void setPriorityList(Combo comboBox) {
+    //-----------------------Methods-------------------------------------------
+
+    /**
+     * the method for opening ship PortWindow
+     * @return - the created Object of Ship
+     */
+
+    public Ship open() {
+        this.show();
+        return ship;
+    }
+
+    /**
+     * method for showing ship PortWindow
+     */
+
+    public void show() {
+        Display display = Display.getDefault();
+        shell.open();
+        shell.layout();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+    }
+
+    /**
+     * method for initialize comboBox with default priorityList
+     * @param comboBox - comboBox, that was be initialize by default PriorityList
+     */
+
+    private void setPriorityList(Combo comboBox) {
         for (QueuePriority i : Client.QueuePriority.values()){
             comboBox.add(i.toString());
         }
         comboBox.select(0);
     }
 
-    public void setProductList(Combo comboBox) {
+    /**
+     * method for initialize comboBox with default productList
+     * @param comboBox - comboBox, that was be initialize by default ProductList
+     */
+
+    private void setProductList(Combo comboBox) {
         comboBox.add("Silk");
         comboBox.add("Wood");
         comboBox.add("Milk");
     }
 
-    public void addAction() {
+    /**
+     * method for refreshing out of storage of created ship
+     * @param list - List, that was be refresh
+     */
+
+    private void refreshProductList(List list) {
+        list.removeAll();
+        Set<String> keys = ship.getKeySet();
+        for (String i : keys) {
+            list.add(i + " - " + ship.getCountOfProduct(i));
+        }
+    }
+
+    /**
+     * method for refreshing out of control of storage of created ship
+     * @param list - List, that was be refresh
+     */
+
+    private void refreshControlList(List list){
+        list.removeAll();
+        Set<String> keys = ship.getControlMap().keySet();
+        for (String i : keys) {
+            list.add(i + " - " + ship.getCountOfControl(i));
+        }
+    }
+
+    //-----------------------Actions-------------------------------------------
+
+    /**
+     * action, that performed, when button "Add" was pressed
+     */
+    private void addAction() {
         ship.addCount(productComboBox.getItem(productComboBox.getSelectionIndex()), productSpinner.getSelection());
         refreshProductList(productList);
     }
 
-    public void addControlAction() {
+    /**
+     * action, that performed, when button "Add Control" was pressed
+     */
+    private void addControlAction() {
         ship.addControlCount(productComboBox.getItem(productComboBox.getSelectionIndex()), productSpinner.getSelection());
         refreshControlList(controlList);
     }
 
-    public void closeAction() {
+    /**
+     * action, that performed, when button "Close" was pressed
+     */
+    private void closeAction() {
         ship = null;
         shell.dispose();
     }
 
-    public void applyAction() {
+    /**
+     * action, that performed, when button "Apply" was pressed
+     */
+    private void applyAction() {
         ship.setPriority(QueuePriority.valueOf(priorityCombo.getItem(priorityCombo.getSelectionIndex())));
         ship.setName(shipNameField.getText());
         ship.setUsePriority(this.priorityCheckButton.getSelection());
@@ -190,20 +255,5 @@ public class ShipWindow {
         ship.setUseTimer(this.timeCheckButton.getSelection());
         ship.setTime(this.timeSpinner.getSelection());
         shell.dispose();
-    }
-
-    public void refreshProductList(List list) {
-        list.removeAll();
-        Set<String> keys = ship.getKeySet();
-        for (String i : keys) {
-            list.add(i + " - " + ship.getCountOfProduct(i));
-        }
-    }
-    public void refreshControlList(List list){
-        list.removeAll();
-        Set<String> keys = ship.getControlMap().keySet();
-        for (String i : keys) {
-            list.add(i + " - " + ship.getCountOfControl(i));
-        }
     }
 }
